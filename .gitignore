@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE and OS files
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+
+# Downloaded datasets, archives, and model/output data
+/datasets/
+/downloads/
+/training_data/
+/validation/
+/experiments/
+/tools/
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+
+# Generated 3DGS outputs and checkpoints
+/output/
+/outputs/
+/build/
+build/
+dist/
+*.pth
+*.ckpt
+*.ply
+*.splat
+
+# Logs and runtime artifacts
+*.log
+tensorboard_3d/
+wandb/
+runs/
+*.tmp
+*.bak
