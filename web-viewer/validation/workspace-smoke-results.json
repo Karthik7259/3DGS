@@ -1,0 +1,318 @@
+{
+  "state": "READY",
+  "finalFrame": {
+    "badge": "Ready",
+    "message": "",
+    "canvas": true,
+    "canvasSize": [
+      1019,
+      554
+    ]
+  },
+  "details": {
+    "model": {
+      "gaussianCount": 2050123,
+      "shDegree": 3
+    },
+    "camera": {
+      "width": 1019,
+      "height": 554
+    },
+    "webgl": {
+      "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3050 6GB Laptop GPU (0x000025EC) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "vendor": "Google Inc. (NVIDIA)"
+    },
+    "initialCamera": {
+      "position": [
+        -3.3363603622190463,
+        0.073149006377887,
+        -1.1759649620966814
+      ],
+      "target": [
+        -0.07186831781704273,
+        0.9784556135825838,
+        0.9584380044111085
+      ]
+    }
+  },
+  "controls": {
+    "cameraBefore": {
+      "position": [
+        -3.3363603622190463,
+        0.073149006377887,
+        -1.1759649620966814
+      ],
+      "quaternion": [
+        0.8649825686268509,
+        0.13541698380833322,
+        -0.47998049757940753,
+        0.05555284341393587
+      ],
+      "target": [
+        -0.07186831781704273,
+        0.9784556135825838,
+        0.9584380044111085
+      ],
+      "zoom": 1
+    },
+    "cameraAfterOrbit": {
+      "position": [
+        -3.3329575344122486,
+        -0.3754785719359049,
+        1.4214972084499764
+      ],
+      "quaternion": [
+        -0.48818334267833696,
+        -0.2830497733247117,
+        0.8241498025504469,
+        -0.04834203872711868
+      ],
+      "target": [
+        -0.4126792074345711,
+        1.5546417509564208,
+        0.05728468199708914
+      ],
+      "zoom": 1
+    },
+    "cameraAfterZoom": {
+      "position": [
+        -3.3329575344122486,
+        -0.3754785719359049,
+        1.4214972084499764
+      ],
+      "quaternion": [
+        -0.48818334267833696,
+        -0.2830497733247117,
+        0.8241498025504469,
+        -0.04834203872711868
+      ],
+      "target": [
+        -0.4126792074345711,
+        1.5546417509564208,
+        0.05728468199708914
+      ],
+      "zoom": 1.2712491503214045
+    },
+    "cameraAfterPan": {
+      "position": [
+        -2.564249861067543,
+        -0.09200960872992137,
+        1.2604781698573757
+      ],
+      "quaternion": [
+        -0.4881833426783317,
+        -0.28304977332471454,
+        0.824149802550449,
+        -0.04834203872711962
+      ],
+      "target": [
+        -0.26707756699807556,
+        1.4262768124679892,
+        0.18735058813350944
+      ],
+      "zoom": 1
+    },
+    "cameraAfterReset": {
+      "position": [
+        -3.3363603622190463,
+        0.07314900637788657,
+        -1.175964962096681
+      ],
+      "quaternion": [
+        0.8649825686268507,
+        0.13541698380833328,
+        -0.4799804975794076,
+        0.0555528434139359
+      ],
+      "target": [
+        -0.07186831781704273,
+        0.9784556135825838,
+        0.9584380044111085
+      ],
+      "zoom": 1
+    }
+  },
+  "temporal": {
+    "verifiedLiveFrames": 20,
+    "calibratedQuarterTurns": 4,
+    "liveCapture": {
+      "viewport": {
+        "x": 35.125,
+        "y": 230.796875,
+        "width": 1019.921875,
+        "height": 494
+      },
+      "tag": {
+        "x": 50.125,
+        "y": 245.796875,
+        "width": 145.1875,
+        "height": 28
+      },
+      "pixelRatio": 1
+    },
+    "betweenSampleAnimationFrames": 391,
+    "fourTimesPlaybackSeconds": 11.463,
+    "temporalGpuSampleCount": 14,
+    "temporalGpuMinMiB": 448,
+    "temporalGpuPeakMiB": 458,
+    "minimumSystemFreeMiB": 2098,
+    "systemTotalMiB": 16092,
+    "controls": "pause, resume, step, scrub, speed, reset, loop, fullscreen, mobile",
+    "sameCanvas": true,
+    "sameModel": true,
+    "canvasCount": 1
+  },
+  "loadSeconds": 7.778,
+  "lastCameraMotion": "32.8 fps",
+  "elapsedSeconds": 34,
+  "consoleErrors": [],
+  "gpuPeakUsedMiB": 458,
+  "gpuSamples": [
+    {
+      "usedMiB": 1,
+      "freeMiB": 6002,
+      "utilizationPercent": 0,
+      "systemFreeMiB": 3028,
+      "systemTotalMiB": 16092,
+      "at": "2026-11-22T02:06:58.920Z"
+    },
+    {
+      "usedMiB": 63,
+      "freeMiB": 5940,
+      "utilizationPercent": 3,
+      "systemFreeMiB": 2739,
+      "systemTotalMiB": 16092,
+      "at": "2026-11-22T02:07:01.001Z"
+    },
+    {
+      "usedMiB": 59,
+      "freeMiB": 5944,
+      "utilizationPercent": 3,
+      "systemFreeMiB": 2558,
+      "systemTotalMiB": 16092,
+      "at": "2026-11-22T02:07:03.084Z"
+    },
+    {
+      "usedMiB": 360,
+      "freeMiB": 5643,
+      "utilizationPercent": 0,
+      "systemFreeMiB": 2107,
+      "systemTotalMiB": 16092,
+      "at": "2026-11-22T02:07:05.178Z"
+    },
+    {
+      "usedMiB": 458,
+      "freeMiB": 5545,
+      "utilizationPercent": 0,
+      "systemFreeMiB": 2136,
+      "systemTotalMiB": 16092,
+      "at": "2026-11-22T02:07:17.226Z"
+    },
+    {
+      "usedMiB": 457,
+      "freeMiB": 5546,
+      "utilizationPercent": 20,
+      "systemFreeMiB": 2129,
+      "systemTotalMiB": 16092,
+      "at": "2026-11-22T02:07:18.240Z"
+    },
+    {
+      "usedMiB": 453,
+      "freeMiB": 5550,
+      "utilizationPercent": 35,
+      "systemFreeMiB": 2166,
+      "systemTotalMiB": 16092,
+      "at": "2026-11-22T02:07:19.146Z"
+    },
+    {
+      "usedMiB": 454,
+      "freeMiB": 5549,
+      "utilizationPercent": 35,
+      "systemFreeMiB": 2235,
+      "systemTotalMiB": 16092,
+      "at": "2026-11-22T02:07:20.067Z"
+    },
+    {
+      "usedMiB": 451,
+      "freeMiB": 5552,
+      "utilizationPercent": 10,
+      "systemFreeMiB": 2098,
+      "systemTotalMiB": 16092,
+      "at": "2026-11-22T02:07:20.966Z"
+    },
+    {
+      "usedMiB": 450,
+      "freeMiB": 5553,
+      "utilizationPercent": 10,
+      "systemFreeMiB": 2171,
+      "systemTotalMiB": 16092,
+      "at": "2026-11-22T02:07:21.868Z"
+    },
+    {
+      "usedMiB": 449,
+      "freeMiB": 5554,
+      "utilizationPercent": 20,
+      "systemFreeMiB": 2300,
+      "systemTotalMiB": 16092,
+      "at": "2026-11-22T02:07:22.749Z"
+    },
+    {
+      "usedMiB": 449,
+      "freeMiB": 5554,
+      "utilizationPercent": 23,
+      "systemFreeMiB": 2288,
+      "systemTotalMiB": 16092,
+      "at": "2026-11-22T02:07:23.710Z"
+    },
+    {
+      "usedMiB": 448,
+      "freeMiB": 5555,
+      "utilizationPercent": 29,
+      "systemFreeMiB": 2270,
+      "systemTotalMiB": 16092,
+      "at": "2026-11-22T02:07:24.588Z"
+    },
+    {
+      "usedMiB": 448,
+      "freeMiB": 5555,
+      "utilizationPercent": 11,
+      "systemFreeMiB": 2285,
+      "systemTotalMiB": 16092,
+      "at": "2026-11-22T02:07:25.522Z"
+    },
+    {
+      "usedMiB": 449,
+      "freeMiB": 5554,
+      "utilizationPercent": 13,
+      "systemFreeMiB": 2295,
+      "systemTotalMiB": 16092,
+      "at": "2026-11-22T02:07:26.391Z"
+    },
+    {
+      "usedMiB": 448,
+      "freeMiB": 5555,
+      "utilizationPercent": 41,
+      "systemFreeMiB": 2274,
+      "systemTotalMiB": 16092,
+      "at": "2026-11-22T02:07:27.272Z"
+    },
+    {
+      "usedMiB": 449,
+      "freeMiB": 5554,
+      "utilizationPercent": 41,
+      "systemFreeMiB": 2281,
+      "systemTotalMiB": 16092,
+      "at": "2026-11-22T02:07:28.203Z"
+    },
+    {
+      "usedMiB": 449,
+      "freeMiB": 5554,
+      "utilizationPercent": 41,
+      "systemFreeMiB": 2279,
+      "systemTotalMiB": 16092,
+      "at": "2026-11-22T02:07:28.689Z"
+    }
+  ],
+  "browserStderrTail": "[14824:3868:1122/073657.032:INFO:components\\enterprise\\browser\\controller\\chrome_browser_cloud_management_controller.cc:247] No machine level policy manager exists.\r\n\r\nDevTools listening on ws://127.0.0.1:9223/devtools/browser/5c5433af-66a6-4f44-8905-87ad07107962\r\nCreated TensorFlow Lite XNNPACK delegate for CPU.\r\n",
+  "screenshot": "validation/workspace-smoke.png"
+}

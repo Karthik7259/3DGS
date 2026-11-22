@@ -1,0 +1,82 @@
+{
+  "original": {
+    "technique": "original",
+    "budget": 100,
+    "selectedCount": 2050123,
+    "shDegree": 3,
+    "firstGaussianIds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "opacity": {
+    "technique": "opacity",
+    "budget": 5,
+    "selectedCount": 102506,
+    "shDegree": 3,
+    "firstGaussianIds": [
+      2020287,
+      2036300,
+      2041466,
+      2043133,
+      2048155
+    ],
+    "panel": {
+      "badge": "",
+      "metrics": [
+        "Total Gaussians2,050,123",
+        "Spherical harmonicsDegree 3",
+        "Training iteration30,000",
+        "Model formatGraphdeco PLY"
+      ]
+    }
+  },
+  "sensitivity": {
+    "technique": "sensitivity",
+    "budget": 5,
+    "selectedCount": 102506,
+    "shDegree": 3,
+    "firstGaussianIds": [
+      1838749,
+      1838952,
+      84544,
+      1595792,
+      20060
+    ],
+    "panel": {
+      "badge": "",
+      "metrics": [
+        "Total Gaussians2,050,123",
+        "Spherical harmonicsDegree 3",
+        "Training iteration30,000",
+        "Model formatGraphdeco PLY"
+      ]
+    }
+  },
+  "hybrid": {
+    "technique": "hybrid",
+    "budget": 5,
+    "reference": "000057.jpg",
+    "selectedCount": 102506,
+    "shDegree": 3,
+    "firstGaussianIds": [
+      1618787,
+      18692,
+      1867470,
+      1981077,
+      1615954
+    ],
+    "panel": {
+      "badge": "",
+      "metrics": [
+        "Total Gaussians2,050,123",
+        "Spherical harmonicsDegree 3",
+        "Training iteration30,000",
+        "Model formatGraphdeco PLY"
+      ]
+    }
+  }
+}
