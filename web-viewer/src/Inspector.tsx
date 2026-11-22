@@ -8,7 +8,7 @@ export function BudgetPicker({values, value, disabled, onChange}: {
   return <fieldset className="budget-field"><legend>Retention budget</legend>
     <div className={'budget-grid' + (values.length === 2 ? ' compact' : '')}>
       {values.map(v => <button key={v} disabled={disabled} aria-pressed={v === value} onClick={() => onChange(v)}>
-        <i aria-hidden="true"><b style={{height:v + '%'}}/></i><span>{v}%</span>
+        {v}%
       </button>)}
     </div>
   </fieldset>;
@@ -16,9 +16,9 @@ export function BudgetPicker({values, value, disabled, onChange}: {
 
 type Props = {
   count: number | null; total: number; status: string; degree: number;
-  saved: boolean; diagnostics: Diagnostics; children: ReactNode;
+  saved: boolean; diagnostics: Diagnostics; children: ReactNode; onCompare?: () => void;
 };
-export function Inspector({count, total, status, degree, saved, diagnostics, children}: Props) {
+export function Inspector({count, total, status, degree, saved, diagnostics, children, onCompare}: Props) {
   const [tab, setTab] = useState<'settings' | 'model'>('settings');
   const tabs = useRef<HTMLDivElement>(null);
   const percent = count === null ? null : Math.round(count * 100 / total);
@@ -39,14 +39,12 @@ export function Inspector({count, total, status, degree, saved, diagnostics, chi
     </div>
     <div id="panel-settings" role="tabpanel" aria-labelledby="tab-settings" hidden={tab !== 'settings'}>
       {children}
-      <div className="retention-summary">
-        <div className="summary-numbers"><span>Selected Gaussians</span><strong className="count">{count === null ? '—' : count.toLocaleString('en-US')}</strong>
-          <small>of {total.toLocaleString('en-US')} total</small></div>
-        <div className="retention-ring" aria-label={percent === null ? 'Loading selection' : percent + '% retained'}
-          style={{background:`conic-gradient(var(--accent) 0 ${percent ?? 0}%, #3c3c3c ${percent ?? 0}% 100%)`}}>
-          <b>{percent === null ? '—' : percent + '%'}</b>
-        </div>
-      </div>
+      <section className="retention-summary">
+        <h3>Selected Gaussians</h3>
+        <strong className="count">{count === null ? '—' : count.toLocaleString('en-US')}</strong>
+        <div className="count-meter" aria-hidden="true"><i style={{width:(percent ?? 0) + '%'}}/></div>
+        <div className="count-scale"><span>of {total.toLocaleString('en-US')}</span><b>{percent === null ? '—' : percent + '%'}</b></div>
+      </section>
     </div>
     <div id="panel-model" role="tabpanel" aria-labelledby="tab-model" hidden={tab !== 'model'}>
       <div className="model-heading"><img src="/cameras/side.webp" alt=""/><div><strong>Truck</strong><small>Tanks &amp; Temples</small></div></div>
@@ -56,13 +54,14 @@ export function Inspector({count, total, status, degree, saved, diagnostics, chi
         <div className="stat-row"><dt>Training iteration</dt><dd>30,000</dd></div>
         <div className="stat-row"><dt>Model format</dt><dd>Graphdeco PLY</dd></div>
       </dl>
-      <section className="renderer-section"><div className="engine"><div className="engine-icon"><Icon name="chip" size={21}/></div>
-        <div><strong>{saved ? 'Graphdeco' : 'Spark'}</strong><small>{saved ? 'Saved CUDA renders' : 'WebGL 2'}</small></div></div>
+    </div>
+    <section className="renderer-section" aria-label="Renderer"><div className="engine"><div className="engine-icon"><Icon name="chip" size={20}/></div>
+        <div><strong>{saved ? 'Graphdeco' : 'Spark renderer'}</strong><small>{saved ? 'Archived CUDA renders' : 'WebGL 2'} · SH {degree}</small></div></div>
         {!saved && diagnostics.adapter && <details className="diagnostics">
           <summary>Render diagnostics</summary><p>{diagnostics.adapter}</p>
           <p>Last camera motion <strong>{diagnostics.motionFps ? diagnostics.motionFps.toFixed(1) + ' fps' : '—'}</strong></p>
         </details>}
-      </section>
-    </div>
+    </section>
+    {onCompare && <div className="compare-action"><button onClick={onCompare}><Icon name="compare" size={16}/>Compare benchmarks</button></div>}
   </aside>;
 }

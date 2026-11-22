@@ -8,6 +8,7 @@ import { defineConfig, type Connect, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { temporalArchive } from './server/temporal.ts';
 import type { TemporalBudget, TemporalMethod } from './src/temporalData';
+import type { BenchmarkPoint } from './src/benchmarkData';
 
 const experiments = fileURLToPath(new URL('../experiments/', import.meta.url));
 const ply = path.join(experiments, 'baseline_truck/point_cloud/iteration_30000/point_cloud.ply');
@@ -128,21 +129,47 @@ async function hybridRanking(entry: CameraSelection, count: number) {
   }
 }
 
-async function metricRow(method: Method, budget: number) {
-  const csv = await readFile(path.join(experiments, benchmarkDirs[method], 'results/aggregate_metrics.csv'), 'utf8');
+async function benchmarkRows(method: Method, file: string): Promise<Record<string, string>[]> {
+  const csv = await readFile(path.join(experiments, benchmarkDirs[method], 'results', file), 'utf8');
   const [header, ...lines] = csv.trim().split(/\r?\n/);
   const names = header.split(',');
-  const rows = lines.map(line => Object.fromEntries(line.split(',').map((v, i) => [names[i], Number(v)])));
-  const row = rows.find(r => (r.percentage ?? r.budget_percent) === budget);
+  return lines.map(line => Object.fromEntries(line.split(',').map((v, i) => [names[i], v])));
+}
+
+function measured(value: string | undefined) {
+  if (!value?.trim() || !Number.isFinite(Number(value))) throw new Error('Missing saved benchmark measurement.');
+  return Number(value);
+}
+
+async function qualityRows(method: Method) {
+  const rows = await benchmarkRows(method, 'aggregate_metrics.csv');
+  return rows.map(r => ({
+    method, budget: measured(r.percentage ?? r.budget_percent), count: measured(r.K),
+    psnr: measured(r.mean_PSNR_dB ?? r.PSNR_mean), ssim: measured(r.mean_SSIM ?? r.SSIM_mean),
+  }));
+}
+
+async function metricRow(method: Method, budget: number) {
+  const row = (await qualityRows(method)).find(r => r.budget === budget);
   if (!row) throw new Error('Missing saved benchmark metrics.');
-  return { count: row.K, psnr: row.mean_PSNR_dB ?? row.PSNR_mean, ssim: row.mean_SSIM ?? row.SSIM_mean };
+  return row;
+}
+
+async function benchmarkSeries(method: Method): Promise<BenchmarkPoint[]> {
+  const [quality, timings] = await Promise.all([qualityRows(method), benchmarkRows(method, 'timings.csv')]);
+  const summaries = method === 'hybrid' ? timings.filter(r => r.phase === 'budget_summary') : timings;
+  return quality.map(point => {
+    const row = summaries.find(r => Number(r.budget_percent ?? r.percentage) === point.budget);
+    if (!row || measured(row.K) !== point.count) throw new Error('Missing matching render timing.');
+    return {...point, fps: measured(row.synchronized_render_call_fps ?? row.render_call_fps_mean)};
+  }).sort((a, b) => a.budget - b.budget);
 }
 
 async function researchEndpoint(req: IncomingMessage, res: ServerResponse, next: Connect.NextFunction) {
   const url = new URL(req.url ?? '/', 'http://localhost');
   const route = url.pathname;
   const render = /^\/benchmark-render\/(original|opacity|sensitivity|hybrid)\/(\d{1,3})\/(\d{5})\.png$/.exec(route);
-  const api = ['/api/selection', '/api/selection-references', '/api/benchmark-comparison'];
+  const api = ['/api/selection', '/api/selection-references', '/api/benchmark-comparison', '/api/benchmark-series'];
   const pilotRoute = route === '/api/temporal' || route.startsWith('/api/temporal/');
   if (!render && !pilotRoute && route !== '/model/truck.ply' && route !== '/model/cameras.json' && !api.includes(route)) return next();
   if (req.method !== 'GET' && req.method !== 'HEAD') {
@@ -169,6 +196,10 @@ async function researchEndpoint(req: IncomingMessage, res: ServerResponse, next:
   }
   if (route === '/api/selection-references') {
     return send(req, res, Buffer.from(JSON.stringify((await references()).map(c => c.image_name))), 'application/json');
+  }
+  if (route === '/api/benchmark-series') {
+    const series = await Promise.all((Object.keys(benchmarkDirs) as Method[]).map(benchmarkSeries));
+    return send(req, res, Buffer.from(JSON.stringify(series.flat())), 'application/json');
   }
   const method = url.searchParams.get('method') ?? '';
   const budget = Number(url.searchParams.get('budget'));
