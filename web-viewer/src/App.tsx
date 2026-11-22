@@ -6,7 +6,8 @@ import { useTemporalPlayback } from './useTemporalPlayback';
 import { TemporalTimeline, TemporalComparison, TemporalMetrics } from './TemporalAnalysis';
 import { temporalMethods, temporalNames, type TemporalMethod, type TemporalBudget } from './temporalData';
 import { Inspector, BudgetPicker } from './Inspector';
-import { Benchmark, BenchmarkTrends } from './Benchmark';
+import { Benchmark, BenchmarkTrends, useBenchmarkSeries } from './Benchmark';
+import { StudioMetrics } from './StudioMetrics';
 import { Icon, Mark } from './Icon';
 
 const LiveViewport = lazy(() => import('./LiveViewport'));
@@ -21,23 +22,27 @@ const descriptions: Record<Technique, string> = {
   sensitivity: 'Ranked by sensitivity across the training views.',
   hybrid: 'Combines sensitivity with the saved ranking for one test camera.',
 };
-const thumbnails: Record<CameraPreset, string> = {overview: 'overview', profile: 'side', rear: 'rear'};
+const poseNames = {overview: 'Front', profile: 'Side', rear: 'Rear'};
 type Stats = {gaussianCount: number; shDegree: number};
 type Run = {technique: Technique; budget: number};
-const viewLinks = {workspace:'#workspace', benchmark:'#benchmarks', temporal:'#temporal-analysis'} as const;
+const viewLinks = {workspace:'#workspace', benchmark:'#benchmarks', temporal:'#temporal-analysis', results:'#results'} as const;
 type Page = keyof typeof viewLinks;
 function currentView(): Page {
   return (Object.keys(viewLinks) as Page[]).find(p => viewLinks[p] === window.location.hash) ?? 'workspace';
 }
 
+const toolCaptions: Partial<Record<Parameters<typeof Icon>[0]['name'], string>> = {orbit:'Orbit', hand:'Pan', minus:'Out', plus:'In', focus:'Reset'};
+
 function Tool({icon, label, action, active, disabled, className = ''}: {
   icon: Parameters<typeof Icon>[0]['name']; label: string; action: () => void; active?: boolean; disabled?: boolean; className?: string;
 }) {
   return <button type="button" className={'tool ' + className + (active ? ' active' : '')} title={label} aria-label={label}
-    aria-pressed={active} disabled={disabled} onClick={action}><Icon name={icon}/></button>;
+    aria-pressed={active} disabled={disabled} onClick={action}><Icon name={icon}/>{toolCaptions[icon] && <small>{toolCaptions[icon]}</small>}</button>;
 }
 
 export default function App() {
+  const series = useBenchmarkSeries();
+  const about = useRef<HTMLDialogElement>(null);
   const [page, setPage] = useState<Page>(currentView);
   useEffect(() => { window.scrollTo(0, 0); }, [page]);
   useEffect(() => {
@@ -46,7 +51,7 @@ export default function App() {
     return () => window.removeEventListener('hashchange', change);
   }, []);
   const navigate = (next: Page) => { window.location.hash = viewLinks[next]; setPage(next); };
-  const compare = page === 'benchmark';
+  const compare = page === 'benchmark' || page === 'results';
   const temporal = page === 'temporal';
   const [cameraMode, setCameraMode] = useState<CameraMode>('capture');
   const onFreePan = useCallback(() => setCameraMode('free'), []);
@@ -80,7 +85,7 @@ export default function App() {
   const changeRun = compare ? setBenchmark : setLive;
   const visibleBudget = technique === 'original' ? 100 : budget;
   const pickMethod = (next: Technique) => changeRun({technique:next, budget:next === 'original' ? 100 : budget === 100 ? 10 : budget});
-  const benchmarkCount = measured?.method === technique && measured.budget === visibleBudget ? measured.gaussianCount : null;
+  const benchmarkCount = page === 'results' ? series.points.find(p => p.method === technique && p.budget === visibleBudget)?.count ?? null : measured?.method === technique && measured.budget === visibleBudget ? measured.gaussianCount : null;
   const activePose = CAMERA_PRESETS.find(p => p.id === preset);
   const onCameraReady = useCallback(() => setCameraReady(true), []);
   const onCameraMove = useCallback(() => setPreset(null), []);
@@ -126,27 +131,31 @@ export default function App() {
     }
     navigate('benchmark');
   };
-  return <div className="app-shell">
+  const shown = selection.displayed;
+  const shownName = shown && shown.technique !== 'temporal' ? names[shown.technique] : names.original;
+  const adapter = diagnostics.adapter?.match(/(?:GeForce |Radeon |Intel\(R\) )([^,(]+?)(?: Laptop GPU| Direct3D| \(0x|,|$)/i)?.[1] ?? (diagnostics.adapter ? 'WebGL 2' : 'GPU');
+  return <div className="app-shell studio">
     <header className="topbar">
-      <div className="brand"><Mark/><div><strong>Splat Lab</strong><span className="brand-descriptor">Spatial computing studio</span></div></div>
-      <nav aria-label="Workspace views">
-        <button className={page === 'workspace' ? 'current' : ''} aria-current={page === 'workspace' ? 'page' : undefined} onClick={() => navigate('workspace')}><Icon name="cube"/>Workspace</button>
-        <button className={compare ? 'current' : ''} aria-current={compare ? 'page' : undefined} onClick={openComparison}><Icon name="compare"/>Benchmarks</button>
-        <button className={temporal ? 'current' : ''} aria-current={temporal ? 'page' : undefined} onClick={() => navigate('temporal')}><Icon name="path"/>Temporal Analysis</button>
-      </nav>
-      <span className="session"><Icon name="screen" size={15}/>Local session</span>
+      <div className="brand"><Mark/><div><strong>SPLAT LAB</strong><span className="brand-descriptor">Spatial Computing Research Studio</span></div></div>
+      <div className="research-title">Sensitivity-Guided, View-Dependent Gaussian Selection<small>for Efficient 3D Gaussian Splatting</small></div>
+      <div className="hardware" title={diagnostics.adapter}><Icon name="chip" size={16}/>{adapter}<span>{diagnostics.motionFps ? diagnostics.motionFps.toFixed(1) + ' FPS' : 'WebGL 2'}</span></div>
     </header>
+    <aside className="studio-rail"><nav aria-label="Workspace views">
+      <button aria-label="Workspace" className={page === 'workspace' ? 'current' : ''} aria-current={page === 'workspace' ? 'page' : undefined} onClick={() => navigate('workspace')}><Icon name="cube"/><span>Viewer</span></button>
+      <button className="inspector-toggle" aria-expanded={panel} aria-controls="inspector" onClick={() => setPanel(v => !v)}><Icon name="sliders"/><span>Scene inspector</span></button>
+      <button className={page === 'benchmark' ? 'current' : ''} aria-current={page === 'benchmark' ? 'page' : undefined} onClick={openComparison}><Icon name="compare"/><span>Benchmarks</span></button>
+      <button className={temporal ? 'current' : ''} aria-current={temporal ? 'page' : undefined} onClick={() => navigate('temporal')}><Icon name="path"/><span>Temporal Analysis</span></button>
+      <button className={page === 'results' ? 'current' : ''} aria-current={page === 'results' ? 'page' : undefined} onClick={() => navigate('results')}><Icon name="layers"/><span>Results</span></button>
+      <button onClick={() => about.current?.showModal()}><Icon name="info"/><span>About</span></button>
+    </nav><img className="rail-wave" src="/studio-wave.svg" alt=""/></aside>
+    <dialog ref={about} className="studio-dialog" aria-labelledby="about-title"><h2 id="about-title">About Splat Lab</h2><p>Explore the Tanks &amp; Temples Truck reconstruction and compare opacity, global sensitivity, and camera-dependent hybrid selection across six retention budgets.</p><p>Benchmark quality is averaged across 32 held-out cameras. Browser motion FPS is measured locally.</p><form method="dialog"><button>Close</button></form></dialog>
     <main className="main">
-      <div className="scene-heading"><div>
-        <div className="breadcrumb"><Icon name="layers" size={15}/>Tanks &amp; Temples <span>/</span> Truck</div>
-        <h1>{temporal ? 'Temporal analysis' : compare ? 'Selection benchmarks' : 'Truck reconstruction'}</h1>
-      </div><button className={'inspector-toggle' + (panel ? ' open' : '')} title={panel ? 'Hide scene inspector' : 'Show scene inspector'} aria-expanded={panel} aria-controls="inspector" onClick={() => setPanel(v => !v)}><Icon name="panel" size={16}/>Inspector</button></div>
       <div className={'workspace' + (panel ? '' : ' collapsed')}>
         <div className="scene-column">
-          <div className={'view-shell ' + (temporal ? 'temporal-stage' : compare ? 'benchmark-stage' : 'live-stage')} ref={stage}>
+          <div className={'view-shell ' + (temporal ? 'temporal-stage' : compare ? 'benchmark-stage' : 'live-stage')} hidden={page === 'results'} ref={stage}>
             <div className="view-head">
-              <div className="view-title"><Icon name={temporal ? 'path' : compare ? 'compare' : 'cube'} size={17}/>
-                {temporal ? 'Training trajectory' : compare ? 'Benchmark comparison' : 'Scene viewport'}</div>
+              <div className="view-title"><Icon name={temporal ? 'path' : compare ? 'compare' : 'cube'} size={32}/>
+                <div><h1>{temporal ? 'Training trajectory' : compare ? 'Benchmark comparison' : 'Truck Reconstruction'}</h1><small>Tanks &amp; Temples · 3D Gaussian Splatting</small></div></div>
               <div className="head-right">
                 {temporal ? <div className="mode-switch" role="group" aria-label="Temporal view">
                   <button aria-pressed={!playback.compare} onClick={() => playback.setCompare(false)}>Live 3D</button>
@@ -170,7 +179,7 @@ export default function App() {
                   <span>{error || playback.error || (selection.status === 'error' && selection.detail) || (!ready ? 'Preparing Truck model…' : 'Loading measured selection…')}</span>
                   {error && <button onClick={retry}>Retry live view</button>}
                 </div>}
-              </>) : compare ? <Benchmark technique={technique} name={names[technique]} budget={visibleBudget} references={references} frame={frame} setFrame={setFrame} onMeasured={setMeasured}/> : <>
+              </>) : page === 'results' ? null : compare ? <Benchmark technique={technique} name={names[technique]} budget={visibleBudget} references={references} frame={frame} setFrame={setFrame} onMeasured={setMeasured}/> : <>
                 {!ready && <div className="reference-preview"><img src="/benchmark-render/original/100/00007.png" alt="Saved front three-quarter render of the Truck reconstruction"/><span className="preview-tag">Saved reference</span></div>}
                 {ready && <div className="scene-readout"><div className="live-tag"><i/>Live render</div>
                   <span>{selection.displayed && selection.displayed.technique !== 'temporal' ? names[selection.displayed.technique] : 'Original model'}</span>
@@ -186,6 +195,9 @@ export default function App() {
                   <Tool icon="plus" label="Zoom in" action={() => actions.current?.zoom(1/1.18)}/><span/>
                   <Tool icon="focus" label="Reset camera to front three-quarter" className="reset-button" action={() => choosePose('overview')}/>
                 </div>}
+                {ready && <div className="pose-dock" role="group" aria-label="Calibrated camera views">{CAMERA_PRESETS.map(p =>
+                  <button key={p.id} className={'camera-card' + (preset === p.id ? ' selected' : '')} aria-pressed={preset === p.id}
+                    title={p.label} onClick={() => choosePose(p.id)}><Icon name="camera" size={16}/>{poseNames[p.id]}</button>)}</div>}
               </>}
             </div>
             {fullscreenError && <div role="alert" className="selection-status">{fullscreenError}</div>}
@@ -197,13 +209,7 @@ export default function App() {
             </div>
             {temporal && <TemporalTimeline p={playback}/>}
           </div>
-          {compare && <BenchmarkTrends technique={technique} budget={visibleBudget}/>}
-          {!compare && !temporal && <section className="camera-section"><div className="section-heading"><h2><Icon name="camera"/>Camera views</h2><span>{CAMERA_PRESETS.length} calibrated poses</span></div>
-            <div className="camera-strip">{CAMERA_PRESETS.map(p => <button key={p.id} disabled={!ready} className={'camera-card' + (p.id === preset ? ' selected' : '')}
-              aria-pressed={p.id === preset} onClick={() => choosePose(p.id)}>
-              <img src={'/cameras/' + thumbnails[p.id] + '.webp'} alt=""/><span><strong>{p.label}</strong><small>{references[p.frame] ?? 'Calibrated pose'}</small></span>
-              {p.id === preset && <b aria-hidden="true"><Icon name="check" size={10}/></b>}
-            </button>)}</div></section>}
+          {compare && <BenchmarkTrends technique={technique} budget={visibleBudget} series={series}/>}
         </div>
         {panel && <Inspector
           count={temporal ? sample?.results[playback.method][playback.presentedBudget].count ?? null : compare ? benchmarkCount : ready ? selection.count : null}
@@ -237,6 +243,7 @@ export default function App() {
           </section>}
         </Inspector>}
       </div>
+      {page === 'workspace' && <StudioMetrics series={series} technique={shown?.technique === 'temporal' ? 'original' : shown?.technique ?? 'original'} budget={shown?.budget ?? 100} count={ready ? selection.count : null} fps={ready ? diagnostics.motionFps : undefined} name={shownName}/>}
     </main>
     <footer className="app-footer"><span><Icon name="layers" size={14}/>3D Gaussian Splatting</span><span>Sensitivity-guided, view-dependent Gaussian selection</span></footer>
   </div>;

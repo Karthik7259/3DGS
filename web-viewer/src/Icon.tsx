@@ -28,5 +28,5 @@ export function Icon({ name, size = 18 }: { name: keyof typeof paths; size?: num
 }
 
 export function Mark() {
-  return <span className="brand-mark" aria-hidden="true">{Array.from({length: 25}, (_, i) => <i key={i} style={{ opacity: 0.23 + 0.77 * Math.exp(-Math.abs(i % 5 - Math.floor(i / 5)) / 1.8) }} />)}</span>;
+  return <span className="studio-mark" aria-hidden="true"><i/><i/><i/></span>;
 }

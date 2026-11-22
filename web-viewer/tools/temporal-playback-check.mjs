@@ -193,7 +193,7 @@ export async function verifyTemporalPlayback({send, validationDir, viewerUrl, po
   await ready('temporal_strong',5,9);
   await click('Benchmarks');
   await wait(() => document.querySelector('.view-title')?.textContent.includes('Benchmark'));
-  await click('Workspace');
+  await click('Viewer');
   await wait(() => window.__viewerSelectionDebug?.technique === 'opacity' && document.querySelector('.count')?.textContent === '1,537,592');
   assert.deepEqual(await page(() => window.__viewerCamera), before);
   const retained = await page(() => ({sameCanvas:window.__testCanvas === document.querySelector('canvas'),

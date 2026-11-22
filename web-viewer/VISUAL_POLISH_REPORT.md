@@ -1,5 +1,17 @@
 # Splat Lab visual polish
 
+## Purple studio edition
+
+The `purple3dversion` branch starts at the polished viewer commit `43a56ab`. Its desktop layout follows the supplied reference with a purple navigation rail, a vertical tool palette over the live scene, a front/side/rear camera dock, and an inspector beside the canvas. The retention slider snaps to the six experimental budgets. Results opens the archived measurements directly.
+
+The four tiles beneath the scene show archived PSNR and SSIM for the displayed selection, locally measured camera-motion FPS, and the live Gaussian count. The adjacent chart plots measured PSNR against retention for all three selection methods and marks the original-model baseline. The GPU name comes from the browser’s renderer diagnostics.
+
+![Purple studio showing the actual Truck model, inspector, quality metrics, and retention curves](validation/purple3dversion/workspace.png)
+
+The production build and all three camera and ranking unit tests passed. The browser decoded the full 2,050,123-Gaussian model with degree-3 SH on an RTX 3050 laptop. The browser check exercised camera navigation and reset, the hybrid retention slider, Results, About, fullscreen, and all 20 temporal samples. Switching views retained the same canvas and model. The final 390-pixel-wide temporal layout passed the horizontal overflow check. All 18 chart records and 576 camera-comparison responses matched the research archives.
+
+## Earlier polished viewer
+
 The Truck workspace gives the live reconstruction **10.4% more canvas area** in the desktop comparison. All three calibrated camera views fit beneath it. The benchmark view now connects the saved image pairs to the measured quality and throughput of all three selection methods.
 
 The work is on `codex/splat-lab-visual-polish`. The existing viewer was untracked on `main`, so commit `1df5203` captures its source, dependencies manifest, test tools, and camera thumbnails before the visual edits. That commit is the comparison point for this report.

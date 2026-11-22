@@ -5,7 +5,9 @@ import { Icon } from './Icon';
 export function BudgetPicker({values, value, disabled, onChange}: {
   values: readonly number[]; value: number; disabled?: boolean; onChange: (n: number) => void;
 }) {
-  return <fieldset className="budget-field"><legend>Retention budget</legend>
+  return <fieldset className="budget-field"><legend>Gaussian retention · {value}%</legend>
+    <input type="range" aria-label="Gaussian retention" aria-valuetext={value + '%'} min={0} max={values.length-1} value={values.indexOf(value)}
+      disabled={disabled} onChange={e => onChange(values[Number(e.target.value)])}/>
     <div className={'budget-grid' + (values.length === 2 ? ' compact' : '')}>
       {values.map(v => <button key={v} disabled={disabled} aria-pressed={v === value} onClick={() => onChange(v)}>
         {v}%
@@ -55,6 +57,9 @@ export function Inspector({count, total, status, degree, saved, diagnostics, chi
         <div className="stat-row"><dt>Model format</dt><dd>Graphdeco PLY</dd></div>
       </dl>
     </div>
+    {tab === 'settings' && <section className="studio-model"><h3><Icon name="info" size={17}/>Model information</h3>
+      <dl className="numeric-rows"><div><dt>Total Gaussians</dt><dd>{total.toLocaleString('en-US')}</dd></div>
+      <div><dt>SH degree</dt><dd>{degree}</dd></div><div><dt>Model format</dt><dd>Graphdeco PLY</dd></div></dl></section>}
     <section className="renderer-section" aria-label="Renderer"><div className="engine"><div className="engine-icon"><Icon name="chip" size={20}/></div>
         <div><strong>{saved ? 'Graphdeco' : 'Spark renderer'}</strong><small>{saved ? 'Archived CUDA renders' : 'WebGL 2'} · SH {degree}</small></div></div>
         {!saved && diagnostics.adapter && <details className="diagnostics">

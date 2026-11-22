@@ -56,8 +56,8 @@ const methods = Object.keys(seriesNames) as BenchmarkMethod[];
 const metrics = {psnr: 'PSNR (dB)', ssim: 'SSIM', fps: 'Render-call FPS', tradeoff: 'PSNR vs FPS'};
 type Metric = keyof typeof metrics;
 
-function SweepChart({points, metric, budget, technique}: {
-  points: BenchmarkPoint[]; metric: Metric; budget: number; technique: Technique;
+export function SweepChart({points, metric, budget, technique, compact = false}: {
+  points: BenchmarkPoint[]; metric: Metric; budget: number; technique: Technique; compact?: boolean;
 }) {
   const box = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(640);
@@ -72,21 +72,23 @@ function SweepChart({points, metric, budget, technique}: {
   const top = field === 'ssim' ? 1 : field === 'fps' ? peakFps : Math.ceil(Math.max(...points.map(p => p.psnr)) / 10) * 10;
   const xMax = tradeoff ? peakFps : 100;
   const x = (value: number) => 42 + (width - 64) * value / xMax;
-  const y = (value: number) => 144 - 129 * value / top;
+  const axisY = compact ? 76 : 144;
+  const height = axisY + 31;
+  const y = (value: number) => axisY - (axisY - 12) * value / top;
   const xy = (p: BenchmarkPoint) => [x(tradeoff ? p.fps : p.budget), y(p[field])];
   const base = points.find(p => p.method === 'opacity' && p.budget === 100)!;
   const [bx, by] = xy(base);
   const yDivisions = field === 'psnr' ? 3 : 4;
   return <div className="sweep-plot" ref={box}>
     <span className="axis-unit">{metrics[field]}</span>
-    <svg width="100%" height="175" viewBox={`0 0 ${width} 175`} role="img"
-      aria-label={`${metrics[field]} by ${tradeoff ? 'render-call FPS' : 'retention budget'} for the baseline and three selection methods. Exact selected-budget values follow.`}>
+    <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} role="img"
+      aria-label={`${metrics[field]} by ${tradeoff ? 'render-call FPS' : 'retention budget'} for the baseline and three selection methods. Values are archived means across 32 test cameras.`}>
       {Array.from({length:yDivisions + 1}, (_, i) => {
         const value = top * i / yDivisions;
         return <g key={i}><line className="grid-line" x1={x(0)} x2={x(xMax)} y1={y(value)} y2={y(value)}/>
           <text x={x(0)-9} y={y(value)+4} textAnchor="end">{Number(value.toFixed(2))}</text></g>;
       })}
-      {[0,1,2,3,4].map(i => <text key={i} x={x(i*xMax/4)} y="166" textAnchor="middle">{i*xMax/4}{tradeoff ? '' : '%'}</text>)}
+      {[0,1,2,3,4].map(i => <text key={i} x={x(i*xMax/4)} y={height - 9} textAnchor="middle">{i*xMax/4}{tradeoff ? '' : '%'}</text>)}
       {!tradeoff && <line className="budget-guide" x1={x(budget)} x2={x(budget)} y1={y(top)} y2={y(0)}/>}
       {methods.map(method => {
         const rows = points.filter(p => p.method === method);
@@ -111,9 +113,8 @@ function SweepChart({points, metric, budget, technique}: {
   </div>;
 }
 
-export function BenchmarkTrends({technique, budget}: {technique: Technique; budget: number}) {
+export function useBenchmarkSeries() {
   const [points, setPoints] = useState<BenchmarkPoint[]>([]);
-  const [metric, setMetric] = useState<Metric>('psnr');
   const [error, setError] = useState('');
   useEffect(() => {
     const abort = new AbortController();
@@ -124,6 +125,12 @@ export function BenchmarkTrends({technique, budget}: {technique: Technique; budg
     }).catch((e: Error) => { if (!abort.signal.aborted) setError(e.message); });
     return () => abort.abort();
   }, []);
+  return {points, error};
+}
+
+export function BenchmarkTrends({technique, budget, series}: {technique: Technique; budget: number; series: ReturnType<typeof useBenchmarkSeries>}) {
+  const [metric, setMetric] = useState<Metric>('psnr');
+  const {points,error} = series;
   const baseline = points.find(p => p.method === 'opacity' && p.budget === 100);
   return <section className="benchmark-trends">
     <header className="trends-heading"><div><p className="section-label">Aggregate measurements</p><h2>Quality and throughput</h2></div>
